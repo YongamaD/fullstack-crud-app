@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+
+# Node
+node_modules/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Builds
+dist/
+build/
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+
+# Tooling
+.vscode/
