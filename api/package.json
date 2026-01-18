@@ -6,8 +6,9 @@
     "dev": "tsx watch src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit", 
-    "db:studio": "prisma studio"
+    "typecheck": "tsc --noEmit",
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -15,16 +16,15 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^7.2.0",
-    "fastify": "^5.7.1",
-    "prisma": "^7.2.0"
+    "fastify": "^5.7.1"
   },
   "devDependencies": {
     "@types/node": "^25.0.9",
     "dotenv": "^17.2.3",
+    "prisma": "^7.2.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.17",
-    "prisma": "^7.2.0"
+    "vitest": "^4.0.17"
   },
   "type": "module"
 }
