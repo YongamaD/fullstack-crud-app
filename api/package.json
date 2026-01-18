@@ -23,7 +23,8 @@
     "dotenv": "^17.2.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.17",
+    "prisma": "^7.2.0"
   },
   "type": "module"
 }
