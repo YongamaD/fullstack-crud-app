@@ -45,7 +45,7 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://app:app@postgres:5432/app_test?schema=public
+      DATABASE_URL: postgresql://app:app@localhost:5432/app_test?schema=public
       JWT_SECRET: github-actions-ci-secret-with-32-characters-minimum
       NODE_ENV: test
 
