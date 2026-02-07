@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyError, FastifyRequest, FastifyReply } from "fastify";
 import { ZodError } from "zod";
-import { ValidationError, ConflictError, UnauthorizedError } from "./errors";
+import { ValidationError, ConflictError, UnauthorizedError, NotFoundError, ForbiddenError } from "./errors";
 import { config } from "./config";
 
 export function registerErrorHandler(app: FastifyInstance) {
@@ -38,6 +38,20 @@ export function registerErrorHandler(app: FastifyInstance) {
     // UnauthorizedError (401)
     if (error instanceof UnauthorizedError) {
       return reply.code(401).send({
+        error: error.message,
+      });
+    }
+
+    // ForbiddenError (403)
+    if (error instanceof ForbiddenError) {
+      return reply.code(403).send({
+        error: error.message,
+      });
+    }
+
+    // NotFoundError (404)
+    if (error instanceof NotFoundError) {
+      return reply.code(404).send({
         error: error.message,
       });
     }

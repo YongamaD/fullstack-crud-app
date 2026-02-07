@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import { authRoutes } from "./auth/routes";
+import { postsRoutes } from "./posts/routes";
 import { config } from "./config";
 import { registerErrorHandler } from "./errorHandler";
 import { registerSecurityMiddleware } from "./middleware/security";
@@ -17,6 +18,7 @@ export function buildServer() {
 
   // Register routes
   app.register(authRoutes);
+  app.register(postsRoutes);
 
   app.get("/health", async () => {
     return { status: "ok" };

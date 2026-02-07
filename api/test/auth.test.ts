@@ -3,7 +3,8 @@ import { buildServer } from "../src/server";
 import { db } from "../src/db";
 
 beforeEach(async () => {
-  // Clean database before each test
+  // Clean database before each test (posts first due to FK constraint)
+  await db.post.deleteMany({});
   await db.user.deleteMany({});
 });
 
