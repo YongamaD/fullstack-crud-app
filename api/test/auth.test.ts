@@ -225,3 +225,81 @@ test("Email is lowercased on registration", async () => {
 
   expect(loginRes.statusCode).toBe(200);
 });
+
+test("GET /auth/me with valid token returns user info", async () => {
+  const app = buildServer();
+
+  // Register and get token
+  const registerRes = await app.inject({
+    method: "POST",
+    url: "/auth/register",
+    payload: {
+      email: "test@example.com",
+      password: "password123",
+    },
+  });
+
+  const { token } = registerRes.json();
+
+  // Get user info
+  const res = await app.inject({
+    method: "GET",
+    url: "/auth/me",
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(body.user).toBeDefined();
+  expect(body.user.email).toBe("test@example.com");
+  expect(body.user.id).toBeDefined();
+  expect(body.user.createdAt).toBeDefined();
+  expect(body.user.password).toBeUndefined(); // Should not expose password
+});
+
+test("GET /auth/me without token returns 401", async () => {
+  const app = buildServer();
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/auth/me",
+  });
+
+  expect(res.statusCode).toBe(401);
+  const body = res.json();
+  expect(body.error).toBe("Missing or invalid authorization header");
+});
+
+test("GET /auth/me with invalid token returns 401", async () => {
+  const app = buildServer();
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/auth/me",
+    headers: {
+      authorization: "Bearer invalid-token",
+    },
+  });
+
+  expect(res.statusCode).toBe(401);
+  const body = res.json();
+  expect(body.error).toBe("Invalid token");
+});
+
+test("GET /auth/me with malformed authorization header returns 401", async () => {
+  const app = buildServer();
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/auth/me",
+    headers: {
+      authorization: "NotBearer token",
+    },
+  });
+
+  expect(res.statusCode).toBe(401);
+  const body = res.json();
+  expect(body.error).toBe("Missing or invalid authorization header");
+});

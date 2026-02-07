@@ -5,6 +5,7 @@ import { hashPassword, verifyPassword } from "./password";
 import { signToken } from "./jwt";
 import { registerSchema, loginSchema } from "./schemas";
 import { ConflictError, UnauthorizedError } from "../errors";
+import { requireAuth } from "../middleware/auth";
 
 export async function authRoutes(app: FastifyInstance) {
   app.post("/auth/register", async (req, reply) => {
@@ -38,5 +39,18 @@ export async function authRoutes(app: FastifyInstance) {
     }
 
     return reply.send({ token: signToken({ userId: user.id }) });
+  });
+
+  app.get("/auth/me", { preHandler: requireAuth }, async (req, reply) => {
+    const user = await db.user.findUnique({
+      where: { id: req.user.userId },
+      select: { id: true, email: true, createdAt: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedError("User not found");
+    }
+
+    return reply.send({ user });
   });
 }
