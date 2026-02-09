@@ -1,18 +1,8 @@
-import { createContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import * as authApi from "../api/auth";
 import { getToken, setToken, removeToken } from "../utils/storage";
 import type { User } from "../api/types";
-
-interface AuthContextValue {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-}
-
-export const AuthContext = createContext<AuthContextValue | null>(null);
+import { AuthContext } from "./auth-context";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -20,7 +10,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !!getToken());
 
   // Check for existing token on mount
   useEffect(() => {
@@ -31,8 +21,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .then((res) => setUser(res.user))
         .catch(() => removeToken())
         .finally(() => setIsLoading(false));
-    } else {
-      setIsLoading(false);
     }
   }, []);
 

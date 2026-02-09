@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getPosts } from "../api/posts";
 import type { Post, Pagination } from "../api/types";
 import PostList from "../components/posts/PostList";
@@ -14,23 +14,23 @@ export default function PostsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadPosts();
-  }, [page, search]);
-
-  async function loadPosts() {
+  const loadPosts = useCallback(async () => {
     setIsLoading(true);
     setError("");
     try {
       const response = await getPosts({ page, search: search || undefined });
       setPosts(response.posts);
       setPagination(response.pagination || null);
-    } catch (err) {
+    } catch {
       setError("Failed to load posts");
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [page, search]);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
