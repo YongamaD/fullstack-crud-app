@@ -1,8 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { test, expect } from "vitest";
-import App from "./App";
+import { MemoryRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Layout from "./components/layout/Layout";
 
-test("renders app shell", () => {
-  render(<App />);
-  expect(screen.getByText(/Fullstack CRUD App/i)).toBeInTheDocument();
+test("renders app header", () => {
+  render(
+    <AuthProvider>
+      <MemoryRouter>
+        <Layout />
+      </MemoryRouter>
+    </AuthProvider>
+  );
+  expect(screen.getByText(/Posts App/i)).toBeInTheDocument();
 });
