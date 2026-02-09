@@ -1,0 +1,11 @@
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.posts-empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 3rem 1rem;
+}

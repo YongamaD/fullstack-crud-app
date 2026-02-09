@@ -1,7 +1,8 @@
 import { FastifyInstance } from "fastify";
+import { Prisma } from "@prisma/client";
 import { db } from "../db";
 import { requireAuth } from "../middleware/auth";
-import { createPostSchema, updatePostSchema, postIdSchema } from "./schemas";
+import { createPostSchema, updatePostSchema, postIdSchema, paginationSchema } from "./schemas";
 import { NotFoundError, ForbiddenError } from "../errors";
 
 export async function postsRoutes(app: FastifyInstance) {
@@ -21,32 +22,78 @@ export async function postsRoutes(app: FastifyInstance) {
     return reply.code(201).send({ post });
   });
 
-  // List all posts (public)
+  // List all posts (public) with pagination and search
   app.get("/posts", async (req, reply) => {
-    const posts = await db.post.findMany({
-      where: { status: "published" },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        status: true,
-        createdAt: true,
-        user: { select: { id: true, email: true } },
+    const { page, limit, search } = paginationSchema.parse(req.query);
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.PostWhereInput = {
+      status: "published",
+      ...(search && {
+        title: { contains: search, mode: "insensitive" },
+      }),
+    };
+
+    const [posts, total] = await Promise.all([
+      db.post.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          status: true,
+          createdAt: true,
+          user: { select: { id: true, email: true } },
+        },
+      }),
+      db.post.count({ where }),
+    ]);
+
+    return reply.send({
+      posts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     });
-
-    return reply.send({ posts });
   });
 
   // List my posts (auth required) - MUST be before :id route
   app.get("/posts/me", { preHandler: requireAuth }, async (req, reply) => {
-    const posts = await db.post.findMany({
-      where: { userId: req.user.userId },
-      orderBy: { createdAt: "desc" },
-    });
+    const { page, limit, search } = paginationSchema.parse(req.query);
+    const skip = (page - 1) * limit;
 
-    return reply.send({ posts });
+    const where: Prisma.PostWhereInput = {
+      userId: req.user.userId,
+      ...(search && {
+        title: { contains: search, mode: "insensitive" },
+      }),
+    };
+
+    const [posts, total] = await Promise.all([
+      db.post.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      db.post.count({ where }),
+    ]);
+
+    return reply.send({
+      posts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   });
 
   // Get single post (public)
