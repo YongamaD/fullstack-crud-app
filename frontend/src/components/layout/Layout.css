@@ -1,10 +1,28 @@
+/* ===== Layout Shell ===== */
 .layout {
   min-height: 100vh;
-  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
 }
 
 .main-content {
-  max-width: 1200px;
+  flex: 1;
+  width: 100%;
+  max-width: var(--container-max);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--space-6) var(--space-4);
+}
+
+/* Responsive padding */
+@media (min-width: 640px) {
+  .main-content {
+    padding: var(--space-8) var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: var(--space-10) var(--space-8);
+  }
 }

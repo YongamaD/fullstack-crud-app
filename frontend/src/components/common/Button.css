@@ -1,45 +1,96 @@
+/* ===== Button Component ===== */
 .btn {
-  padding: 0.5rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 2.75rem; /* 44px - accessible touch target */
+  padding: 0 var(--space-5);
   border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s, opacity 0.2s;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring-color);
+  outline-offset: 2px;
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Primary Button */
 .btn-primary {
-  background-color: #3b82f6;
+  background-color: var(--color-primary-600);
   color: white;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--color-primary-700);
+  box-shadow: var(--shadow-md);
 }
 
+.btn-primary:active:not(:disabled) {
+  background-color: var(--color-primary-700);
+  transform: translateY(1px);
+}
+
+/* Secondary Button */
 .btn-secondary {
-  background-color: #e5e7eb;
-  color: #374151;
+  background-color: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color-dark);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #d1d5db;
+  background-color: var(--color-gray-100);
+  color: var(--text-primary);
+  border-color: var(--color-gray-400);
 }
 
+.btn-secondary:active:not(:disabled) {
+  background-color: var(--color-gray-200);
+  transform: translateY(1px);
+}
+
+/* Danger Button */
 .btn-danger {
-  background-color: #ef4444;
+  background-color: var(--color-error-600);
   color: white;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #dc2626;
+  background-color: var(--color-error-700);
+  box-shadow: var(--shadow-md);
 }
 
+.btn-danger:active:not(:disabled) {
+  background-color: var(--color-error-700);
+  transform: translateY(1px);
+}
+
+/* Full Width */
 .btn-full {
   width: 100%;
+}
+
+/* Size Variations */
+.btn-sm {
+  height: 2.25rem;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.btn-lg {
+  height: 3rem;
+  padding: 0 var(--space-6);
+  font-size: var(--font-size-base);
 }

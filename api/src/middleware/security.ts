@@ -11,9 +11,23 @@ export async function registerSecurityMiddleware(app: FastifyInstance) {
   });
 
   // CORS - Cross-origin protection
+  // Support comma-separated origins in CORS_ORIGIN env var
+  const allowedOrigins = config.CORS_ORIGIN
+    ? config.CORS_ORIGIN.split(",").map((o) => o.trim())
+    : [];
+
   await app.register(cors, {
-    origin: config.CORS_ORIGIN || false, // false = reject all CORS in dev
+    origin: (origin, cb) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return cb(null, true);
+      // Allow configured origins
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      // Allow any localhost origin for local development
+      if (origin.startsWith("http://localhost:")) return cb(null, true);
+      cb(new Error("Not allowed by CORS"), false);
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
 
   // Rate limiting - Brute force protection
