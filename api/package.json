@@ -8,6 +8,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate"
   },
   "keywords": [],
