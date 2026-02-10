@@ -24,3 +24,10 @@ yarn-error.log*
 
 # editor
 .vscode/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

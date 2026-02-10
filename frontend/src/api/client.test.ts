@@ -34,11 +34,12 @@ describe("apiClient", () => {
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("/test"),
       expect.objectContaining({
-        headers: expect.objectContaining({
-          "Content-Type": "application/json",
-        }),
+        headers: expect.any(Object),
       })
     );
+    // Content-Type should NOT be set for GET requests (no body)
+    const callArgs = mockFetch.mock.calls[0];
+    expect(callArgs[1].headers["Content-Type"]).toBeUndefined();
   });
 
   test("includes Authorization header when token exists", async () => {
