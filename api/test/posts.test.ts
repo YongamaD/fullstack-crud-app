@@ -239,3 +239,161 @@ test("GET /posts/me returns user's own posts", async () => {
   const body = res.json();
   expect(body.posts).toHaveLength(2);
 });
+
+// Pagination tests
+test("GET /posts returns pagination metadata", async () => {
+  const app = buildServer();
+
+  // Create 15 published posts
+  await db.post.createMany({
+    data: Array.from({ length: 15 }, (_, i) => ({
+      title: `Post ${i + 1}`,
+      status: "published",
+      userId,
+    })),
+  });
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/posts",
+  });
+
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(body.pagination).toBeDefined();
+  expect(body.pagination.page).toBe(1);
+  expect(body.pagination.limit).toBe(10);
+  expect(body.pagination.total).toBe(15);
+  expect(body.pagination.totalPages).toBe(2);
+  expect(body.posts).toHaveLength(10);
+});
+
+test("GET /posts with page param returns correct page", async () => {
+  const app = buildServer();
+
+  await db.post.createMany({
+    data: Array.from({ length: 15 }, (_, i) => ({
+      title: `Post ${i + 1}`,
+      status: "published",
+      userId,
+    })),
+  });
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/posts?page=2",
+  });
+
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(body.pagination.page).toBe(2);
+  expect(body.posts).toHaveLength(5);
+});
+
+test("GET /posts with limit param returns correct number", async () => {
+  const app = buildServer();
+
+  await db.post.createMany({
+    data: Array.from({ length: 10 }, (_, i) => ({
+      title: `Post ${i + 1}`,
+      status: "published",
+      userId,
+    })),
+  });
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/posts?limit=5",
+  });
+
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(body.pagination.limit).toBe(5);
+  expect(body.pagination.totalPages).toBe(2);
+  expect(body.posts).toHaveLength(5);
+});
+
+test("GET /posts with search filters by title", async () => {
+  const app = buildServer();
+
+  await db.post.createMany({
+    data: [
+      { title: "JavaScript Tutorial", status: "published", userId },
+      { title: "TypeScript Guide", status: "published", userId },
+      { title: "Python Basics", status: "published", userId },
+    ],
+  });
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/posts?search=script",
+  });
+
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(body.posts).toHaveLength(2);
+  expect(body.posts.every((p: { title: string }) => p.title.toLowerCase().includes("script"))).toBe(true);
+});
+
+test("GET /posts search is case-insensitive", async () => {
+  const app = buildServer();
+
+  await db.post.create({
+    data: { title: "UPPERCASE TITLE", status: "published", userId },
+  });
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/posts?search=uppercase",
+  });
+
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(body.posts).toHaveLength(1);
+});
+
+test("GET /posts/me with pagination", async () => {
+  const app = buildServer();
+
+  await db.post.createMany({
+    data: Array.from({ length: 12 }, (_, i) => ({
+      title: `My Post ${i + 1}`,
+      userId,
+    })),
+  });
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/posts/me?page=2&limit=5",
+    headers: { authorization: `Bearer ${token}` },
+  });
+
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(body.pagination.page).toBe(2);
+  expect(body.pagination.limit).toBe(5);
+  expect(body.pagination.total).toBe(12);
+  expect(body.posts).toHaveLength(5);
+});
+
+test("GET /posts/me with search", async () => {
+  const app = buildServer();
+
+  await db.post.createMany({
+    data: [
+      { title: "React Tutorial", userId },
+      { title: "Vue Guide", userId },
+      { title: "React Hooks", userId },
+    ],
+  });
+
+  const res = await app.inject({
+    method: "GET",
+    url: "/posts/me?search=react",
+    headers: { authorization: `Bearer ${token}` },
+  });
+
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(body.posts).toHaveLength(2);
+});
